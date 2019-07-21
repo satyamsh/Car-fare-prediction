@@ -1,0 +1,12 @@
+"Columns","Missing_Percentage"
+"passenger_count",0.342316549449182
+"day",0.00622393726271239
+"month",0.00622393726271239
+"year",0.00622393726271239
+"time",0.00622393726271239
+"fare_amount",0
+"pickup_datetime",0
+"pickup_longitude",0
+"pickup_latitude",0
+"dropoff_longitude",0
+"dropoff_latitude",0
