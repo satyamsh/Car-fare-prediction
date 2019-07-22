@@ -1,0 +1,31 @@
+1. Kindly change working directory before execution.
+2. Kindly make sure all basic packages are installed and the location is set in Environment Variable.
+3. Kindly save data files in working directory.
+
+Libraries used in R:
+data.table
+DMwR
+corrgram
+qqplotr
+c50
+rpart
+rpart.plot
+randomforest
+e1071
+ggplot2
+
+Libraries used in Python:
+ knnimpute
+ os
+ pandas
+ numpy
+ matplotlib.pyplot
+ scipy.stats  
+ seaborn 
+ random
+ datetime 
+ sklearn.model_selection
+ sklearn.tree
+ statsmodels.api
+ sklearn.ensemble
+ matplotlib

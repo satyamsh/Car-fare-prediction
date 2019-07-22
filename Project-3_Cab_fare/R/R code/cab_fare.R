@@ -107,23 +107,12 @@ testDF$time = as.ITime(testDF$time)
 
 
 #Check type now
-#str(df1$daytime)
-#str(testDF$daytime)
+str(df1)
+str(testDF)
 
 #It is integer time format now
 
 head(df1)
-
-#drop daytime feature as we have splitted this in separate columns
-#str(testDF[,1])
-#str(df1[,2])
-
-#df1 = df1[,-2]
-#testDF = testDF[,-1]
-df2=df1
-df2$day = as.factor(df2$day)
-#mean(df1$month)
-#mean(df2$day)
 
 #check the structure
 str(df1)
@@ -257,10 +246,11 @@ df1=knnImputation(df1,k=5)
 ###Passenger count could have been converted to factor but we are 
 ##keeping it as numeric for ease of analysis and model feeding##
 
-##Excluding fare amount as that is our target varible#
-cnames = colnames(df1[,-1])
-cnames
+##Excluding pickupdatetime as we have splitted it previously#
 
+df1 = df1[,-2]
+cnames = colnames(df1)
+cnames
 #Loop to plot boxplot for each column#
 
 
@@ -310,13 +300,15 @@ for (i in 1:length(cnames))
 #grid.arrange function is arranging plots side by side
 #Didn't include Graph1 because it is for fare amount
 
-gridExtra::grid.arrange(Graph2,Graph3,ncol=2)
+gridExtra::grid.arrange(Graph1,Graph2,ncol=2)
 
-gridExtra::grid.arrange(Graph4,Graph5,ncol=2)
+gridExtra::grid.arrange(Graph3,Graph4,ncol=2)
 
-gridExtra::grid.arrange(Graph6,Graph7,ncol=2)
+gridExtra::grid.arrange(Graph5,Graph6,ncol=2)
 
-gridExtra::grid.arrange(Graph8,Graph9,Graph10,ncol=3)
+gridExtra::grid.arrange(Graph7,Graph8,Graph9,ncol=3)
+
+gridExtra::grid.arrange(Graph10,ncol=1)
 
 
 #Graphs are against fare_amount at x axis
@@ -389,9 +381,17 @@ library(qqplotr)
 qqnorm(df1$pickup_longitude)
 hist(df1$pickup_longitude)
 
+##pickup_latitude
+qqnorm(df1$pickup_latitude)
+hist(df1$pickup_latitude)
+
 #dropoff_longitude
 qqnorm(df1$dropoff_longitude)
 hist(df1$dropoff_longitude)
+
+#dropoff_latitude
+qqnorm(df1$dropoff_latitude)
+hist(df1$dropoff_latitude)
 
 #passenger_count
 qqnorm(df1$passenger_count)
@@ -401,27 +401,17 @@ hist(df1$passenger_count)
 qqnorm(df1$day)
 hist(df1$day)
 
-#daytime
-qqnorm(df1$time)
-hist(df1$time)
+#month
+qqnorm(df1$month)
+hist(df1$month)
 
-#Normalisation
-
-#cnames=colnames(df1[-1])
-#cnames
-#for (i in cnames) {
-#  print(i)
-#  df1[,i] = (df1[,i] - min(df1[,i])) /
-#    (max(df1[,i]) - min(df1[,i]))
-#}
-
-#summary(df1$pickup_longitude)
-
+#year
+qqnorm(df1$year)
+hist(df1$year)
 
 ############Modelling####################
 ##Sampling###
 ##Drop datetime from df1
-df1 = df1[,-2]
 str(df1)
 train_index = sample(1:nrow(df1), 0.8 * nrow(df1))
 
@@ -434,25 +424,17 @@ test = df1[-train_index,]
 #library(C50)
 
 ##Explanation of code##
-#c5.0 is function for dicision tree 
-#fare amount will be independent variable 
-#~. tells that consider other variables as dependent variable
-#we can give ~Variable name as well
-#trials is telling that design 100 trees and select best fit
-#train is training data
-#rules - extract the bussiness rules from model
-#This is for categorical target
-#c50_model = C5.0(fare_amount ~.,train, trials = 100, rules = TRUE)
 
 # We will use rpart for regression
 library(rpart)
+library(rpart.plot)
 fit = rpart(fare_amount ~ ., data = train, method = "anova")
 
 str(test)
 
 predict_DT = predict(fit, test[,-1])
 
-
+rpart.plot(fit,extra = 101)
 
 ##########Random forest#######
 
@@ -465,18 +447,8 @@ model_RF = randomForest(fare_amount ~., train, importance = TRUE, ntree = 300)
 
 predict_RF = predict(model_RF, test[,-1])
 
-
+plot(model_RF)
 #########Linear regression###########
-#check multicollinearity
-library(usdm)
-
-#finding correlation
-vif(train[,-1])
-
-#th - > setting threshhold
-vifcor(train[,-1],th=0.9)
-
-#Run regression model
 library(e1071)
 lm_model = lm(fare_amount ~., data = train) 
 
@@ -531,18 +503,10 @@ regr.eval(test[,1],predict_RF4,stats = c('mae','rmse','mape','mse'))
 #Result = Minor change in error
 #We will go with last attempt i.e. tree = 1000 commenting rest all
 
-#####Confusion Mtrix########
-#library(caret)
-#u = union(test$fare_amount,predict_RF)
-#Confmatrix_rf = table(factor(test$fare_amount,u), factor(predict_RF,u))
-#confusionMatrix(Confmatrix_rf)
-#testDF$dteday = as.numeric(testDF$dteday)
-#testDF = testDF[,-2]
-#str(testDF)
-#testDF = testDF[,-3]
+
 str(testDF)
 testDF = testDF[,-1]
-final_predict_RF = predict(model_RF4, testDF)
+final_predict_RF = predict(model_RF, testDF)
 testDF$Predicted_Fare = final_predict_RF
 str(testDF)
 
